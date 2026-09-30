@@ -10,6 +10,13 @@ import {
 } from "react";
 import { MAX_SOUNDS, sounds, type Mix, type SoundId } from "@/data/sounds";
 import { AudioEngine } from "@/lib/audio/audio-engine";
+import { stories } from "@/data/stories";
+import {
+  emptyNarration,
+  readNarrationPreferences,
+  NARRATION_STORAGE_KEY,
+} from "@/lib/audio/narration";
+import type { NarrationState, NarrationTrack } from "@/types/story";
 
 type Player = {
   mix: Mix;
@@ -26,6 +33,12 @@ type Player = {
   setMaster: (volume: number) => void;
   setTimer: (minutes: number) => void;
   remove: (id: SoundId) => void;
+  narration: NarrationState;
+  playNarration: (track: NarrationTrack) => void;
+  pauseNarration: () => void;
+  stopNarration: () => void;
+  seekNarration: (seconds: number) => void;
+  setNarrationVolume: (volume: number) => void;
 };
 const AudioContext = createContext<Player | null>(null);
 const STORAGE_KEY = "nordic-hush-preferences-v1";
@@ -46,12 +59,38 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const operation = useRef(0);
   const [loading, setLoading] = useState<Partial<Record<SoundId, boolean>>>({});
   const [error, setError] = useState("");
+  const [narration, setNarration] = useState<NarrationState>(emptyNarration);
+  const narrationRef = useRef(narration);
+  function updateNarration(state: NarrationState) {
+    narrationRef.current = state;
+    setNarration(state);
+  }
 
   useEffect(() => {
     let cancelled = false;
     const operationRef = operation;
     queueMicrotask(() => {
       if (cancelled) return;
+      const preferences = readNarrationPreferences();
+      const story = stories.find((item) => item.id === preferences.id);
+      const restoredNarration: NarrationState = {
+        ...emptyNarration,
+        volume: preferences.volume,
+        ...(story?.audioSrc
+          ? {
+              track: {
+                id: story.id,
+                slug: story.slug,
+                title: story.title,
+                audioSrc: story.audioSrc,
+              },
+              currentTime: preferences.position,
+              duration: story.durationSeconds ?? 0,
+            }
+          : {}),
+      };
+      narrationRef.current = restoredNarration;
+      setNarration(restoredNarration);
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
         if (saved && typeof saved === "object") {
@@ -118,6 +157,21 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     updateMix(next);
     engine.current?.sync(next);
   }
+  function getEngine() {
+    engine.current ??= new AudioEngine({
+      loading: (id, value) =>
+        setLoading((previous) => ({ ...previous, [id]: value })),
+      error: (id) => {
+        remove(id);
+        const name = sounds.find((sound) => sound.id === id)!.name;
+        setError(
+          `${name} could not load. Tap its card to try again. Other sounds can keep playing.`,
+        );
+      },
+      narration: updateNarration,
+    });
+    return engine.current;
+  }
   async function start(next: Mix) {
     if (pending.current) return;
     pending.current = true;
@@ -125,20 +179,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     setBusy(true);
     setError("");
     try {
-      engine.current ??= new AudioEngine({
-        loading: (id, value) =>
-          setLoading((previous) => ({ ...previous, [id]: value })),
-        error: (id) => {
-          remove(id);
-          const name = sounds.find((sound) => sound.id === id)!.name;
-          setError(
-            `${name} could not load. Tap its card to try again. Other sounds can keep playing.`,
-          );
-        },
-      });
+      getEngine();
       const end = deadline ?? (timer ? Date.now() + timer * 60000 : null);
-      engine.current.setTimer(end);
-      await engine.current.play(next, master);
+      engine.current!.setTimer(end);
+      await engine.current!.play(next, master);
       if (currentOperation !== operation.current) return;
       playingRef.current = true;
       setPlaying(true);
@@ -164,8 +208,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       engine.current?.pause();
       playingRef.current = false;
       setPlaying(false);
-      setDeadline(null);
-      engine.current?.setTimer(null);
+      if (!narrationRef.current.track) {
+        setDeadline(null);
+        engine.current?.setTimer(null);
+      }
     }
     setError("");
   }
@@ -199,16 +245,102 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   function setTimer(minutes: number) {
     updateTimer(minutes);
     const end =
-      minutes && playingRef.current ? Date.now() + minutes * 60000 : null;
+      minutes &&
+      (playingRef.current ||
+        narrationRef.current.playing ||
+        narrationRef.current.loading)
+        ? Date.now() + minutes * 60000
+        : null;
     setDeadline(end);
     engine.current?.setTimer(end);
   }
   function setMaster(volume: number) {
     updateMaster(volume);
     if (playingRef.current) engine.current?.setVolume(volume);
+    else engine.current?.setNarrationMaster(volume);
   }
   function setChannel(id: SoundId, volume: number) {
     commit({ ...mixRef.current, [id]: volume });
+  }
+
+  function playNarration(track: NarrationTrack) {
+    const previous = narrationRef.current;
+    try {
+      const audio = getEngine();
+      const channel = audio.getNarration();
+      const end = deadline ?? (timer ? Date.now() + timer * 60000 : null);
+      audio.setTimer(end);
+      setDeadline(end);
+      void channel.play(
+        track,
+        previous.track?.id === track.id ? previous.currentTime : 0,
+        previous.volume,
+        master,
+      );
+    } catch {
+      updateNarration({
+        ...previous,
+        error:
+          "Audio could not start. Please tap play again or try another browser.",
+      });
+    }
+  }
+  function pauseNarration() {
+    engine.current?.pauseNarration();
+  }
+  function stopNarration() {
+    if (engine.current?.narrationChannel)
+      engine.current.narrationChannel.stop();
+    else {
+      updateNarration({
+        ...emptyNarration,
+        volume: narrationRef.current.volume,
+      });
+      try {
+        localStorage.setItem(
+          NARRATION_STORAGE_KEY,
+          JSON.stringify({ volume: narrationRef.current.volume }),
+        );
+      } catch {
+        /* Optional. */
+      }
+    }
+    if (!playingRef.current) {
+      setDeadline(null);
+      engine.current?.setTimer(null);
+    }
+  }
+  function seekNarration(seconds: number) {
+    if (engine.current?.narrationChannel)
+      engine.current.narrationChannel.seek(seconds);
+    else if (Number.isFinite(seconds)) {
+      updateNarration({
+        ...narrationRef.current,
+        currentTime: Math.max(
+          0,
+          Math.min(narrationRef.current.duration, seconds),
+        ),
+      });
+    }
+  }
+  function setNarrationVolume(volume: number) {
+    if (engine.current?.narrationChannel)
+      engine.current.narrationChannel.setVolume(volume);
+    else {
+      updateNarration({ ...narrationRef.current, volume: clamp(volume) });
+      try {
+        localStorage.setItem(
+          NARRATION_STORAGE_KEY,
+          JSON.stringify({
+            id: narrationRef.current.track?.id,
+            position: narrationRef.current.currentTime,
+            volume: narrationRef.current.volume,
+          }),
+        );
+      } catch {
+        /* Optional. */
+      }
+    }
   }
 
   return (
@@ -228,6 +360,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         setMaster,
         setChannel,
         setTimer,
+        narration,
+        playNarration,
+        pauseNarration,
+        stopNarration,
+        seekNarration,
+        setNarrationVolume,
       }}
     >
       {children}

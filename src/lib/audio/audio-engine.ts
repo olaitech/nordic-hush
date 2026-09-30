@@ -7,6 +7,8 @@ import {
 } from "@/data/sounds";
 import { createLoopVoice, type Voice } from "./loop-voice";
 import { BufferCache } from "./buffer-cache";
+import { NarrationChannel } from "./narration";
+import type { NarrationState } from "@/types/story";
 
 export class AudioEngine {
   private context?: AudioContext;
@@ -19,13 +21,35 @@ export class AudioEngine {
   private disposed = false;
   private revision = 0;
   private deadline: number | null = null;
+  private narration?: NarrationChannel;
 
   constructor(
     private events: {
       loading: (id: SoundId, loading: boolean) => void;
       error: (id: SoundId) => void;
+      narration?: (state: NarrationState) => void;
     },
   ) {}
+
+  getNarration() {
+    this.init();
+    this.narration ??= new NarrationChannel(
+      this.context!,
+      this.timerGain!,
+      (state) => this.events.narration?.(state),
+    );
+    return this.narration;
+  }
+
+  pauseNarration() {
+    this.narration?.pause();
+  }
+  get narrationChannel() {
+    return this.narration;
+  }
+  setNarrationMaster(volume: number) {
+    this.narration?.setMaster(volume);
+  }
 
   private init() {
     if (this.context) return;
@@ -123,6 +147,7 @@ export class AudioEngine {
   }
 
   setVolume(volume: number) {
+    this.setNarrationMaster(volume);
     if (this.context && this.master) {
       this.master.gain.cancelAndHoldAtTime(this.context.currentTime);
       this.master.gain.setTargetAtTime(volume, this.context.currentTime, 0.08);
@@ -146,6 +171,7 @@ export class AudioEngine {
   }
 
   stop() {
+    this.narration?.pause();
     ++this.revision;
     this.desired = {};
     this.pending.forEach((_, id) => this.events.loading(id, false));
@@ -165,11 +191,13 @@ export class AudioEngine {
       this.context.currentTime + 0.25,
     );
     setTimeout(() => {
-      if (revision === this.revision) void this.context?.suspend();
+      if (revision === this.revision && !this.narration?.isPlaying)
+        void this.context?.suspend();
     }, 300);
   }
 
   dispose() {
+    this.narration?.dispose();
     this.disposed = true;
     ++this.revision;
     this.pending.clear();

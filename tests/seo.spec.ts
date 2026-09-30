@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { sounds } from "../src/data/sounds";
 import { site } from "../src/config/site";
+import { storyPaths } from "../src/data/stories";
 
 test("sitemap, robots, canonical responses and direct permanent redirects", async ({
   request,
@@ -15,6 +16,7 @@ test("sitemap, robots, canonical responses and direct permanent redirects", asyn
     "/about",
     "/privacy",
     ...sounds.map((sound) => `/sounds/${sound.slug}`),
+    ...storyPaths(),
   ];
   expect(urls.sort()).toEqual(paths.map((path) => `${site.url}${path}`).sort());
   expect(xml).not.toContain("lastmod");

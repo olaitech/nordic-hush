@@ -3,18 +3,29 @@ import { Moon, Pause, Play, Timer, Volume2 } from "lucide-react";
 import { useAudio } from "@/context/AudioProvider";
 import { sounds } from "@/data/sounds";
 import { Countdown } from "./SleepTimer";
+import Link from "next/link";
+import { NarrationControls } from "./stories/StoryPlayer";
 
 export function BottomPlayer() {
-  const { mix, playing, playPause, master, setMaster, deadline, error, busy } =
-    useAudio();
+  const {
+    mix,
+    playing,
+    playPause,
+    master,
+    setMaster,
+    deadline,
+    error,
+    busy,
+    narration,
+  } = useAudio();
   const active = sounds.filter((sound) => mix[sound.id] !== undefined);
   return (
     <>
       <div className="player-message" role="status">
-        {error}
+        {error || narration.error}
       </div>
       <aside
-        className={`bottom-player ${active.length ? "has-mix" : ""}`}
+        className={`bottom-player ${active.length ? "has-mix" : ""} ${narration.track ? "has-narration" : ""}`}
         aria-label="Audio player"
       >
         <div className="player-inner">
@@ -23,30 +34,46 @@ export function BottomPlayer() {
           </span>
           <div className="now-playing">
             <span className="eyebrow">
-              {active.length
-                ? playing
-                  ? "YOUR QUIET, PLAYING"
-                  : "YOUR MIX, READY"
-                : "A MOMENT TO YOURSELF"}
+              {narration.track
+                ? "NOW LISTENING"
+                : active.length
+                  ? playing
+                    ? "YOUR QUIET, PLAYING"
+                    : "YOUR MIX, READY"
+                  : "A MOMENT TO YOURSELF"}
             </span>
             <p>
-              {active.length
-                ? active.map((sound) => sound.shortName).join(" + ")
-                : "Let the world slow down."}
+              {narration.track ? (
+                <Link href={`/stories/${narration.track.slug}`}>
+                  {narration.track.title}
+                </Link>
+              ) : active.length ? (
+                active.map((sound) => sound.shortName).join(" + ")
+              ) : (
+                "Let the world slow down."
+              )}
             </p>
           </div>
-          <button
-            className="play-button"
-            disabled={!active.length || busy}
-            aria-label={playing ? "Pause all sounds" : "Play your mix"}
-            onClick={playPause}
-          >
-            {playing ? (
-              <Pause size={19} fill="currentColor" />
-            ) : (
-              <Play size={19} fill="currentColor" />
-            )}
-          </button>
+          {(!narration.track || active.length > 0) && (
+            <button
+              className="play-button"
+              disabled={!active.length || busy}
+              aria-label={
+                playing
+                  ? narration.track
+                    ? "Pause ambient sounds"
+                    : "Pause all sounds"
+                  : "Play your mix"
+              }
+              onClick={playPause}
+            >
+              {playing ? (
+                <Pause size={19} fill="currentColor" />
+              ) : (
+                <Play size={19} fill="currentColor" />
+              )}
+            </button>
+          )}
           <div className="master-volume">
             <Volume2 size={19} strokeWidth={1.4} />
             <input
@@ -59,15 +86,24 @@ export function BottomPlayer() {
             />
             <output>{Math.round(master * 100)}%</output>
           </div>
-          <a
+          <Link
             className="player-timer"
-            href="#sleep-timer"
+            href={
+              narration.track
+                ? `/stories/${narration.track.slug}#sleep-timer`
+                : "#sleep-timer"
+            }
             aria-label="Go to sleep timer"
           >
             <Timer size={19} strokeWidth={1.4} />
             {deadline ? <Countdown /> : <span>Sleep timer</span>}
-          </a>
+          </Link>
         </div>
+        {narration.track && (
+          <div className="persistent-narration">
+            <NarrationControls compact />
+          </div>
+        )}
       </aside>
     </>
   );

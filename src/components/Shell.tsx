@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AudioLines, ArrowUpRight } from "lucide-react";
+import { hasStories } from "@/data/stories";
 
 export function Header() {
   return (
@@ -12,6 +13,7 @@ export function Header() {
       </Link>
       <nav aria-label="Main navigation">
         <Link href="/sounds">Sounds</Link>
+        {hasStories() && <Link href="/stories">Stories</Link>}
         <Link href="/about">About</Link>
         <span className="header-note">
           <span /> A quieter corner of the internet
@@ -31,6 +33,7 @@ export function Footer() {
       </div>
       <nav aria-label="Footer navigation">
         <Link href="/sounds">Sounds</Link>
+        {hasStories() && <Link href="/stories">Stories</Link>}
         <Link href="/about">About</Link>
         <Link href="/privacy">
           Privacy <ArrowUpRight size={12} />

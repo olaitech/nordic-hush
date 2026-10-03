@@ -40,12 +40,12 @@ export function readNarrationPreferences(): {
   return { position: 0, volume: 0.8 };
 }
 
-// One lazy, reusable streaming element in the existing engine/context.
-// No fetch/decodeAudioData, loop, eager src, or independent sleep timer.
+// One lazy, reusable native streaming element, independent of Web Audio.
+// The engine supplies the existing shared sleep-timer deadline.
 export class NarrationChannel {
   private audio: HTMLAudioElement;
-  private source: MediaElementAudioSourceNode;
-  private gain: GainNode;
+  private deadline: number | null = null;
+  private timerInterval?: ReturnType<typeof setInterval>;
   private master = 0.4;
   private state: NarrationState = { ...emptyNarration };
   private revision = 0;
@@ -53,16 +53,12 @@ export class NarrationChannel {
   private lastSaved = 0;
 
   constructor(
-    private context: AudioContext,
-    output: AudioNode,
     private changed: (state: NarrationState) => void,
+    private resume: () => void,
   ) {
     this.audio = new Audio();
     this.audio.preload = "none";
-    this.source = context.createMediaElementSource(this.audio);
-    this.gain = context.createGain();
-    this.gain.gain.value = 0;
-    this.source.connect(this.gain).connect(output);
+    this.audio.volume = 0;
     this.audio.addEventListener("loadedmetadata", this.metadata);
     this.audio.addEventListener("durationchange", this.durationChanged);
     this.audio.addEventListener("timeupdate", this.timeChanged);
@@ -77,6 +73,7 @@ export class NarrationChannel {
   private update(patch: Partial<NarrationState>) {
     this.state = { ...this.state, ...patch };
     this.changed(this.state);
+    this.syncMediaSession();
   }
   private durationChanged = () => {
     this.update({
@@ -92,6 +89,7 @@ export class NarrationChannel {
     this.timeChanged();
   };
   private timeChanged = () => {
+    this.checkTimer();
     this.update({ currentTime: this.audio.currentTime });
     if (Date.now() - this.lastSaved >= 5000) this.save();
   };
@@ -151,8 +149,8 @@ export class NarrationChannel {
     this.setVolume(volume);
     this.update({ loading: true, error: "" });
     try {
-      // Invoke both within the original user gesture (including Safari).
-      await Promise.all([this.context.resume(), this.audio.play()]);
+      // Keep native playback within the original user gesture, including Safari.
+      await this.audio.play();
       if (revision === this.revision)
         this.update({ playing: !this.audio.paused, loading: false });
     } catch {
@@ -204,12 +202,78 @@ export class NarrationChannel {
     this.master = master;
     this.applyGain();
   }
+  setTimer(deadline: number | null) {
+    this.deadline = deadline;
+    clearInterval(this.timerInterval);
+    this.timerInterval = undefined;
+    if (deadline !== null)
+      this.timerInterval = setInterval(this.checkTimer, 500);
+    this.checkTimer();
+  }
+  private checkTimer = () => {
+    this.applyGain();
+    if (this.deadline !== null && Date.now() >= this.deadline) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = undefined;
+      if (!this.audio.paused) this.pause();
+    }
+  };
   private applyGain() {
-    this.gain.gain.setTargetAtTime(
-      this.state.volume * this.master,
-      this.context.currentTime,
-      0.08,
-    );
+    const fade = this.deadline === null
+      ? 1
+      : Math.min(1, Math.max(0, (this.deadline - Date.now()) / 30000));
+    this.audio.volume = Math.min(1, Math.max(0, this.state.volume * this.master * fade));
+  }
+  private mediaActions: MediaSessionAction[] = [
+    "play", "pause", "seekbackward", "seekforward", "seekto",
+  ];
+  private syncMediaSession() {
+    if (!("mediaSession" in navigator)) return;
+    const session = navigator.mediaSession;
+    if (!this.state.track) {
+      session.metadata = null;
+      session.playbackState = "none";
+      this.clearMediaActions();
+      if (session.setPositionState) session.setPositionState();
+      return;
+    }
+    if (typeof MediaMetadata !== "undefined" &&
+        session.metadata?.title !== this.state.track.title) {
+      session.metadata = new MediaMetadata({
+        title: this.state.track.title,
+        artist: "Nordic Hush",
+        album: "Nordic Hush Stories",
+      });
+    }
+    session.playbackState = this.state.playing ? "playing" : "paused";
+    const handlers: Record<string, MediaSessionActionHandler> = {
+      play: () => this.resume(),
+      pause: () => this.pause(),
+      seekbackward: (details) => this.seek(this.audio.currentTime - (details.seekOffset ?? 10)),
+      seekforward: (details) => this.seek(this.audio.currentTime + (details.seekOffset ?? 10)),
+      seekto: (details) => {
+        if (details.seekTime !== undefined) this.seek(details.seekTime);
+      },
+    };
+    for (const action of this.mediaActions) {
+      try { session.setActionHandler(action, handlers[action]); }
+      catch { /* Individual actions may be unsupported. */ }
+    }
+    if (session.setPositionState && this.state.duration > 0) {
+      try {
+        session.setPositionState({
+          duration: this.state.duration,
+          playbackRate: this.audio.playbackRate,
+          position: Math.min(this.state.duration, Math.max(0, this.audio.currentTime)),
+        });
+      } catch { /* Position reporting is optional. */ }
+    }
+  }
+  private clearMediaActions() {
+    for (const action of this.mediaActions) {
+      try { navigator.mediaSession.setActionHandler(action, null); }
+      catch { /* Individual actions may be unsupported. */ }
+    }
   }
   dispose() {
     ++this.revision;
@@ -226,7 +290,13 @@ export class NarrationChannel {
     this.audio.pause();
     this.audio.removeAttribute("src");
     this.audio.load();
-    this.source.disconnect();
-    this.gain.disconnect();
+    clearInterval(this.timerInterval);
+    if ("mediaSession" in navigator) {
+      this.clearMediaActions();
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = "none";
+      if (navigator.mediaSession.setPositionState)
+        navigator.mediaSession.setPositionState();
+    }
   }
 }

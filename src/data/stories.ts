@@ -22,6 +22,29 @@ export const stories: Story[] = [
     seoDescription:
       "Listen to The Long Winter, a calm Viking-inspired sleep story about firelight, snow, community and the return of spring.",
   },
+  {
+    id: "the-baker-before-sunrise",
+    slug: "the-baker-before-sunrise",
+    title: "The Baker Before Sunrise",
+    type: "original",
+    description: "",
+    shortDescription: "",
+    audioSrc: "/stories/the-baker-before-sunrise/audio/the-baker.mp3",
+    seoTitle: "The Baker Before Sunrise | Nordic Hush",
+    seoDescription: "",
+  },
+  {
+    id: "the-tea-house-at-the-edge-of-the-forest",
+    slug: "the-tea-house-at-the-edge-of-the-forest",
+    title: "The Tea House at the Edge of the Forest",
+    type: "original",
+    description: "",
+    shortDescription: "",
+    audioSrc:
+      "/stories/the-tea-house-at-the-edge-of-the-forest/audio/The-tea-house.mp3",
+    seoTitle: "The Tea House at the Edge of the Forest | Nordic Hush",
+    seoDescription: "",
+  },
 ];
 
 export const storyCategories: Record<

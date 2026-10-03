@@ -817,6 +817,73 @@ output {
   margin-top: 55px;
   flex-wrap: wrap;
 }
+.blog-page .breadcrumbs {
+  margin-bottom: 32px;
+}
+.blog-copy {
+  color: #a4b2b9;
+  font-size: 15px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.blog-copy p {
+  margin-bottom: 22px;
+}
+.blog-copy h2 {
+  color: var(--text);
+  margin: 38px 0 16px;
+}
+.blog-copy h3 {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 450;
+  margin: 26px 0 12px;
+}
+.blog-copy strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.blog-copy ul,
+.blog-copy ol {
+  padding-left: 24px;
+  margin: 0 0 24px;
+}
+.blog-copy li {
+  margin: 6px 0;
+}
+.blog-copy a {
+  color: #adc6ba;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.blog-copy a:hover {
+  color: var(--text);
+}
+.blog-copy blockquote {
+  margin: 32px 0;
+  border-left: 2px solid var(--accent);
+  padding-left: 20px;
+  font-size: 13px;
+}
+.blog-cta {
+  margin: 32px 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.blog-copy .blog-cta ul {
+  margin: 16px 0 0;
+  font-size: 13px;
+}
+.blog-copy .text-button {
+  text-decoration: none;
+}
+.blog-next {
+  border-top: 1px solid var(--border);
+  margin-top: 30px;
+  padding-top: 24px;
+}
 @media (min-width: 1400px) {
   .hero {
     padding-top: 54px;

@@ -34,6 +34,7 @@ export function Footer() {
       <nav aria-label="Footer navigation">
         <Link href="/sounds">Sounds</Link>
         {hasStories() && <Link href="/stories">Stories</Link>}
+        <Link href="/blog">Blog</Link>
         <Link href="/about">About</Link>
         <Link href="/privacy">
           Privacy <ArrowUpRight size={12} />

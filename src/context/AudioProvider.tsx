@@ -61,6 +61,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState("");
   const [narration, setNarration] = useState<NarrationState>(emptyNarration);
   const narrationRef = useRef(narration);
+  const resumeNarrationRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    resumeNarrationRef.current = () => {
+      const track = narrationRef.current.track;
+      if (track) playNarration(track);
+    };
+  });
   function updateNarration(state: NarrationState) {
     narrationRef.current = state;
     setNarration(state);
@@ -169,6 +176,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         );
       },
       narration: updateNarration,
+      resumeNarration: () => resumeNarrationRef.current(),
     });
     return engine.current;
   }

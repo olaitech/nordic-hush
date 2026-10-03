@@ -28,16 +28,16 @@ export class AudioEngine {
       loading: (id: SoundId, loading: boolean) => void;
       error: (id: SoundId) => void;
       narration?: (state: NarrationState) => void;
+      resumeNarration?: () => void;
     },
   ) {}
 
   getNarration() {
-    this.init();
     this.narration ??= new NarrationChannel(
-      this.context!,
-      this.timerGain!,
       (state) => this.events.narration?.(state),
+      () => this.events.resumeNarration?.(),
     );
+    this.narration.setTimer(this.deadline);
     return this.narration;
   }
 
@@ -156,6 +156,7 @@ export class AudioEngine {
 
   setTimer(deadline: number | null) {
     this.deadline = deadline;
+    this.narration?.setTimer(deadline);
     if (!this.context || !this.timerGain) return;
     const now = this.context.currentTime;
     const gain = this.timerGain.gain;

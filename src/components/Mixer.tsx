@@ -4,7 +4,7 @@ import { useAudio } from "@/context/AudioProvider";
 import { sounds } from "@/data/sounds";
 import { SoundIcon } from "./SoundIcon";
 
-export function Mixer() {
+export function Mixer({ idPrefix = "" }: { idPrefix?: string }) {
   const { mix, setChannel, remove, playing, playPause, busy, loading } =
     useAudio();
   const active = sounds.filter((sound) => mix[sound.id] !== undefined);
@@ -17,9 +17,9 @@ export function Mixer() {
       </div>
     );
   return (
-    <section className="mixer" aria-labelledby="mix-heading">
+    <section className="mixer" aria-labelledby={`${idPrefix}mix-heading`}>
       <div className="section-heading">
-        <h2 id="mix-heading">
+        <h2 id={`${idPrefix}mix-heading`}>
           Your mix <span className="count-badge">{active.length}</span>
         </h2>
         {!playing && (
@@ -36,9 +36,9 @@ export function Mixer() {
             aria-busy={Boolean(loading[sound.id])}
           >
             <SoundIcon icon={sound.icon} size={21} />
-            <label htmlFor={`volume-${sound.id}`}>{sound.name}</label>
+            <label htmlFor={`${idPrefix}volume-${sound.id}`}>{sound.name}</label>
             <input
-              id={`volume-${sound.id}`}
+              id={`${idPrefix}volume-${sound.id}`}
               aria-label={`${sound.name} volume`}
               type="range"
               min="0"

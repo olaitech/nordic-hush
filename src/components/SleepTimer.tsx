@@ -14,19 +14,19 @@ export function Countdown() {
   );
 }
 
-export function SleepTimer() {
+export function SleepTimer({ idPrefix = "" }: { idPrefix?: string }) {
   const { timer, deadline, setTimer } = useAudio();
   return (
     <section
-      id="sleep-timer"
+      id={`${idPrefix}sleep-timer`}
       className="sleep-timer circular-sleep-panel"
-      aria-labelledby="timer-heading"
+      aria-labelledby={`${idPrefix}timer-heading`}
     >
       <CircularSleepTimer deadline={deadline} minutes={timer} />
       <div className="timer-settings">
         <div className="timer-copy">
           <div>
-            <h2 id="timer-heading">Sleep timer</h2>
+            <h2 id={`${idPrefix}timer-heading`}>Sleep timer</h2>
             <p>Fades out gently in the final 30 seconds.</p>
             <p className="timer-hint">
               {deadline

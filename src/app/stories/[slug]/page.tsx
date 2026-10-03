@@ -32,9 +32,10 @@ export default async function StoryPage({ params }: Props) {
   if (!story) notFound();
   const transcript = await readStoryTranscript(story.transcriptPath);
   return (
-    <main id="main-content" className="main-container detail-page">
+    <main id="main-content" className="main-container detail-page story-detail-page">
       <JsonLd data={storyStructuredData(story)} />
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
+      <Link className="mobile-story-back back-link" href="/stories">← Stories</Link>
+      <nav className="breadcrumbs story-breadcrumbs" aria-label="Breadcrumb">
         <ol>
           {storyBreadcrumbs(story).map((crumb, index) => (
             <li key={crumb.path}>

@@ -5,6 +5,7 @@ import { sounds } from "@/data/sounds";
 import { Countdown } from "./SleepTimer";
 import Link from "next/link";
 import { NarrationControls } from "./stories/StoryPlayer";
+import { MobilePlayer } from "./MobilePlayer";
 
 export function BottomPlayer() {
   const {
@@ -21,6 +22,7 @@ export function BottomPlayer() {
   const active = sounds.filter((sound) => mix[sound.id] !== undefined);
   return (
     <>
+      <MobilePlayer />
       <div className="player-message" role="status">
         {error || narration.error}
       </div>

@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/config/site";
 import { SleepTimer } from "@/components/SleepTimer";
-export const metadata: Metadata = {
-  title: "Privacy",
-  description:
-    "How Nordic Hush stores playback preferences locally in your browser.",
-  alternates: { canonical: "/privacy" },
-};
+export const metadata = pageMetadata(
+  "Privacy | Nordic Hush",
+  "Learn how Nordic Hush saves your sound mix and timer preferences in your browser, what stays on your device, and how website hosting handles request information.",
+  "/privacy",
+);
 export default function Privacy() {
   return (
     <main id="main-content" className="main-container prose-page">

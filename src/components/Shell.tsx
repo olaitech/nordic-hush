@@ -35,12 +35,13 @@ export function Footer() {
         <Link href="/sounds">Sounds</Link>
         {hasStories() && <Link href="/stories">Stories</Link>}
         <Link href="/blog">Blog</Link>
+        <Link href="/faq">FAQ</Link>
         <Link href="/about">About</Link>
         <Link href="/privacy">
           Privacy <ArrowUpRight size={12} />
         </Link>
       </nav>
-      <span className="footer-note">Made for slowing down.</span>
+      <span className="footer-note">Made by <a href="https://across-it.no/">Across-IT</a></span>
     </footer>
   );
 }

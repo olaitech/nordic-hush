@@ -613,6 +613,7 @@ output {
 }
 .footer nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 25px;
   margin-left: auto;
   font-size: 10px;
@@ -628,6 +629,25 @@ output {
 .footer-note {
   color: #8b9ca3;
   font-size: 9px;
+}
+.footer-note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.prose-page > section {
+  margin-top: 32px;
+}
+.prose-page > section p {
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+@media (max-width: 600px) {
+  .footer nav {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 .bottom-player {
   position: fixed;
@@ -904,7 +924,7 @@ output {
     flex-wrap: wrap;
   }
   .footer-note {
-    display: none;
+    display: block;
   }
   .player-timer {
     padding-left: 16px;

@@ -3,7 +3,9 @@ import { pageMetadata } from "@/config/site";
 import { getBlogPosts } from "@/lib/blog";
 
 export const metadata = pageMetadata(
-  "Blog | Nordic Hush", "Explore rain sounds, noise colors, bedtime stories and ASMR for quieter evenings.", "/blog",
+  "Blog | Nordic Hush",
+  "Explore thoughtful guides to rain sounds, white, pink and brown noise, sleep stories and ASMR. Find gentle ideas for winding down and making evenings quieter.",
+  "/blog",
 );
 
 export default async function BlogPage() {

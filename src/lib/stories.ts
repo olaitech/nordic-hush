@@ -6,7 +6,7 @@ export function storyLibraryMetadata(catalog: readonly Story[] = stories) {
   return {
     ...pageMetadata(
       "Sleep Stories for Quiet Nights | Nordic Hush",
-      "Calm narrated stories for sleep and quiet evenings, with optional rain, fireplace, ocean and other ambient sounds.",
+      "Explore calm narrated sleep stories for quieter evenings. Listen at your own pace, add gentle rain or fireplace sounds, and ease into a slower bedtime routine.",
       "/stories",
     ),
     robots: { index: hasStories(catalog), follow: true },
@@ -14,9 +14,16 @@ export function storyLibraryMetadata(catalog: readonly Story[] = stories) {
 }
 
 export function storyMetadata(story: Story) {
+  // Keep SEO copy separate from the published story and audio catalog.
+  const descriptions: Record<string, string> = {
+    "the-baker-before-sunrise":
+      "Listen to The Baker Before Sunrise, a Nordic Hush sleep story for a quieter evening. Settle into slow narration, add gentle sounds and choose a sleep timer.",
+    "the-tea-house-at-the-edge-of-the-forest":
+      "Listen to The Tea House at the Edge of the Forest, a Nordic Hush sleep story. Unwind with slow narration, optional ambient sounds and a gentle sleep timer.",
+  };
   return pageMetadata(
     story.seoTitle,
-    story.seoDescription,
+    story.seoDescription || descriptions[story.slug],
     `/stories/${story.slug}`,
   );
 }

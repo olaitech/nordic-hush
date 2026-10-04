@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { SoundCard } from "@/components/SoundLibrary";
 import { Mixer } from "@/components/Mixer";
 import { SleepTimer } from "@/components/SleepTimer";
+import { getBlogPosts } from "@/lib/blog";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -31,6 +32,9 @@ export default async function SoundPage({ params }: Props) {
   if (!sound) notFound();
   const related = sound.relatedSoundIds.map((id: SoundId) =>
     sounds.find((item) => item.id === id)!,
+  );
+  const reading = getBlogPosts().filter((post) =>
+    post.links.some((link) => link.href === `/sounds/${sound.slug}`),
   );
   const breadcrumbs = [
     { name: "Home", path: "/" },
@@ -97,6 +101,17 @@ export default async function SoundPage({ params }: Props) {
             <SoundCard key={item.id} sound={item} />
           ))}
         </div>
+        {reading.length > 0 && (
+          <p>
+            For a little bedtime reading:{" "}
+            {reading.map((post, index) => (
+              <span key={post.slug}>
+                {index > 0 && " · "}
+                <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+              </span>
+            ))}
+          </p>
+        )}
       </section>
       <section className="sound-uses">
         <h2>Common uses</h2>

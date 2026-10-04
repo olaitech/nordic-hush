@@ -113,6 +113,10 @@ export const getBlogPosts = cache((): BlogPost[] => {
       if (story) return { label, href: `/stories/${story.slug}` };
       throw new Error(`Unresolved blog link: ${label}`);
     });
+    if (file.startsWith("04-")) {
+      const winter = stories.find((story) => story.slug === "the-long-winter");
+      if (winter) links.push({ label: winter.title, href: `/stories/${winter.slug}` });
+    }
     return {
       title: field("title"), slug: field("slug"), metaTitle: field("meta_title"),
       description: field("meta_description"), cta: field("suggested_cta"),

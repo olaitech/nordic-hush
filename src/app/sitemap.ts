@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/sounds",
     "/about",
     "/privacy",
+    "/faq",
     ...sounds.map((sound) => `/sounds/${sound.slug}`),
     ...storyPaths(),
     "/blog",

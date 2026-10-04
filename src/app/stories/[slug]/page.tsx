@@ -14,6 +14,7 @@ import { StoryPlayer } from "@/components/stories/StoryPlayer";
 import { StoryAtmosphere } from "@/components/stories/StoryAtmosphere";
 import { StorySource } from "@/components/stories/StorySource";
 import { StoryTranscript } from "@/components/stories/StoryTranscript";
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -78,6 +79,7 @@ export default async function StoryPage({ params }: Props) {
         {story.disclaimer && <p>{story.disclaimer}</p>}
       </section>
       <StorySource story={story} />
+      {story.slug === "the-long-winter" && <AffiliateCallout />}
       <StoryTranscript text={transcript} />
     </main>
   );

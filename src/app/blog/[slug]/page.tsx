@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogArticle } from "@/components/blog/BlogArticle";
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout";
 import { JsonLd } from "@/components/JsonLd";
 import { blogMetadata, blogStructuredData, getBlogPosts } from "@/lib/blog";
 
@@ -36,6 +37,7 @@ export default async function BlogPostPage({ params }: Props) {
       <span className="eyebrow">NORDIC HUSH BLOG</span>
       <h1>{post.title}</h1>
       <BlogArticle post={post} related={related} />
+      {["asmr-for-sleep-soft-sounds-slow-voices", "why-bedtime-stories-work-for-adults"].includes(post.slug) && <AffiliateCallout />}
       <Link className="back-link" href="/blog">All articles →</Link>
     </main>
   );

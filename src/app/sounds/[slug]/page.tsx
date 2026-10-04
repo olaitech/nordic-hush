@@ -7,6 +7,7 @@ import { SoundCard } from "@/components/SoundLibrary";
 import { Mixer } from "@/components/Mixer";
 import { SleepTimer } from "@/components/SleepTimer";
 import { getBlogPosts } from "@/lib/blog";
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -121,6 +122,7 @@ export default async function SoundPage({ params }: Props) {
           ))}
         </ul>
       </section>
+      {sound.id === "rain" && <AffiliateCallout category="bedside-audio" title="A quieter bedside?" description="A small bedside speaker can be a comfortable way to listen to ambient sounds without headphones." cta="Explore bedside audio" />}
       <section className="faq">
         <h2>Frequently asked questions</h2>
         {sound.faq.map((item) => (

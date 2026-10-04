@@ -35,6 +35,7 @@ export function Footer() {
         <Link href="/sounds">Sounds</Link>
         {hasStories() && <Link href="/stories">Stories</Link>}
         <Link href="/blog">Blog</Link>
+        <Link href="/sleep-gear">Sleep Gear</Link>
         <Link href="/faq">FAQ</Link>
         <Link href="/about">About</Link>
         <Link href="/privacy">

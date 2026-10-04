@@ -1,4 +1,30 @@
 @import "tailwindcss";
+
+.sleep-gear-page { padding: 70px 0 calc(150px + env(safe-area-inset-bottom)); min-height: 70vh; }
+.sleep-gear-page .detail-intro { max-width: 680px; }
+.affiliate-disclosure { max-width: 720px; margin: 26px 0 42px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.affiliate-empty { padding: 32px 0; border-top: 1px solid var(--border); color: var(--muted); line-height: 1.8; }
+.affiliate-anchor { display: block; scroll-margin-top: 30px; }
+.affiliate-category { margin: 48px 0; scroll-margin-top: 30px; }
+.affiliate-category h2 { font-size: 23px; font-weight: 400; margin-bottom: 24px; }
+.affiliate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.affiliate-card { min-width: 0; overflow-wrap: anywhere; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.affiliate-image { position: relative; aspect-ratio: 4 / 3; background: linear-gradient(135deg, #18252c, #101a21); }
+.affiliate-image img { object-fit: contain; padding: 20px; }
+.affiliate-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--muted); font-size: 12px; }
+.affiliate-card-copy { padding: 24px; display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+.affiliate-card h3 { font-size: 18px; font-weight: 450; margin: 0 0 12px; }
+.affiliate-card p { color: var(--muted); line-height: 1.8; }
+.affiliate-badge { color: var(--accent); font-size: 12px; margin-bottom: 12px; }
+.affiliate-tags { list-style: none; padding: 0; margin: 18px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.affiliate-tags li { border: 1px solid var(--border); border-radius: 20px; padding: 5px 10px; font-size: 12px; color: var(--muted); }
+.affiliate-cta { margin-top: auto; padding: 16px 0 0; min-height: 44px; display: inline-flex; align-items: center; }
+.affiliate-callout { max-width: 720px; padding: 24px 0; margin: 36px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.affiliate-callout h2 { font-size: 18px; font-weight: 400; margin-bottom: 10px; }
+.affiliate-callout p { color: var(--muted); line-height: 1.8; margin-bottom: 8px; }
+.affiliate-callout a { display: inline-flex; align-items: center; min-height: 44px; }
+@media (max-width: 900px) { .affiliate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .affiliate-grid { grid-template-columns: minmax(0, 1fr); } .sleep-gear-page { padding-top: 42px; } }
 :root {
   color-scheme: dark;
   --background: #080d14;

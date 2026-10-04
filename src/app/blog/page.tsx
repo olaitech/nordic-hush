@@ -1,3 +1,4 @@
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout";
 import Link from "next/link";
 import { pageMetadata } from "@/config/site";
 import { getBlogPosts } from "@/lib/blog";
@@ -27,6 +28,7 @@ export default async function BlogPage() {
           </article>
         ))}
       </div>
+      <AffiliateCallout category={null} title="For quieter nights" description="A small collection of useful sleep gear for listening, darkness and bedside comfort." cta="Explore Sleep Gear" />
     </main>
   );
 }

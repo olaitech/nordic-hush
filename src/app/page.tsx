@@ -1,3 +1,4 @@
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout";
 import { pageMetadata, site } from "@/config/site";
 import { JsonLd } from "@/components/JsonLd";
 import { Moon, Sparkles } from "lucide-react";
@@ -42,6 +43,7 @@ export default function Home() {
         </p>
         <span>No accounts. No interruptions. Just a little quiet.</span>
       </section>
+      <AffiliateCallout category={null} eyebrow="A little more comfort" title="Sleep Gear" description="A small collection of headphones, masks and bedside essentials selected to complement Nordic Hush sounds and stories." cta="Explore Sleep Gear" />
     </main>
   );
 }

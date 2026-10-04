@@ -1,3 +1,4 @@
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout";
 import { pageMetadata } from "@/config/site";
 import { SoundLibrary } from "@/components/SoundLibrary";
 import { Mixer } from "@/components/Mixer";
@@ -24,6 +25,7 @@ export default function SoundsPage() {
       <SoundLibrary />
       <Mixer />
       <SleepTimer />
+      <AffiliateCallout category={null} title="A little more comfort" description="Prefer headphones, quiet, darkness or a dedicated bedside sound machine? We keep a small collection of sleep gear selected to complement Nordic Hush." cta="Explore Sleep Gear" />
     </main>
   );
 }

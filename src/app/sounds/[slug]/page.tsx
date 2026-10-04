@@ -122,7 +122,11 @@ export default async function SoundPage({ params }: Props) {
           ))}
         </ul>
       </section>
-      {sound.id === "rain" && <AffiliateCallout category="bedside-audio" title="Prefer a dedicated bedside sound machine?" description="Some listeners prefer a dedicated sound machine for ambient bedtime listening without using their phone." cta="Explore bedside audio" />}
+      {sound.category === "Noise" ? (
+        <AffiliateCallout category="bedside-audio" title="Prefer a dedicated bedside sound machine?" description="A small sound machine can provide steady background audio without keeping your phone beside the bed." cta="Explore bedside audio" />
+      ) : (
+        <AffiliateCallout description="Soft sleep headphones can make ambient sounds more comfortable to listen to while resting." />
+      )}
       <section className="faq">
         <h2>Frequently asked questions</h2>
         {sound.faq.map((item) => (

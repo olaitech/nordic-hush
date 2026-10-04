@@ -78,8 +78,8 @@ export default async function StoryPage({ params }: Props) {
         ))}
         {story.disclaimer && <p>{story.disclaimer}</p>}
       </section>
+      <AffiliateCallout />
       <StorySource story={story} />
-      {story.slug === "the-long-winter" && <AffiliateCallout />}
       <StoryTranscript text={transcript} />
     </main>
   );

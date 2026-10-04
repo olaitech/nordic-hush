@@ -37,7 +37,7 @@ export default async function BlogPostPage({ params }: Props) {
       <span className="eyebrow">NORDIC HUSH BLOG</span>
       <h1>{post.title}</h1>
       <BlogArticle post={post} related={related} />
-      {["asmr-for-sleep-soft-sounds-slow-voices", "why-bedtime-stories-work-for-adults"].includes(post.slug) && <AffiliateCallout />}
+      {["asmr-for-sleep-soft-sounds-slow-voices", "why-bedtime-stories-work-for-adults"].includes(post.slug) && <AffiliateCallout title={post.slug === "asmr-for-sleep-soft-sounds-slow-voices" ? "Comfortable bedtime listening" : "Listening in bed"} />}
       <Link className="back-link" href="/blog">All articles →</Link>
     </main>
   );

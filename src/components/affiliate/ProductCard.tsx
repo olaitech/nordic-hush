@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: AffiliateProduct }) {
   const imageSrc = product.imageSrc?.startsWith("/") && !product.imageSrc.startsWith("//")
     ? product.imageSrc : undefined;
   return (
-    <article className="affiliate-card">
+    <article className={`affiliate-card${product.featured ? " affiliate-card-featured" : ""}`}>
       <div className="affiliate-image">
         {imageSrc && failedImage !== imageSrc ? (
           <Image src={imageSrc} alt={product.name} fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 360px" onError={() => setFailedImage(imageSrc)} />
